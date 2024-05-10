@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org./1999/xhtml">
+<head th:replace="common/header :: common-header">
+  
+
+
+<body class="d-flex flex-column">
+  <div th:replace="common/header :: navbar"> </div>
+      
+   <form id="filter-form" th:action="@{/store}" method="get">
+   <div class="container page-content">
+      <div class="row gutters-3">
+
+
+        <div class="col-lg-9 col-md-8">                
+          <!-- /Shop Toolbar -->
+          <div class="card mb-3">
+            <div class="row card-body d-flex justify-content-between align-items-start py-2">
+            
+              <div class="col-8 col-md-7 col-lg-6">
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill d-block d-md-none mb-2" data-toggle="modal" data-target="#filterModal">
+                  <i data-feather="filter"></i> Фильтр</button>
+                <div class="input-group input-group-search input-group-sm mb-2">
+                  
+                  <input type="text" class="form-control border-0 bg-light input-search" placeholder="Поиск.."
+                         th:name="search" th:value="${filters.search}">
+                  <div class="input-group-append">
+                    <button class="btn btn-light" type="submit"><i data-feather="search"></i></button>
+                  </div>
+                </div>                                
+              </div>    
+              
+              <div class="btn-group ml-3">
+                <button type="button" class="btn btn-light btn-sm border rounded-pill" data-toggle="dropdown" 
+                        aria-haspopup="true" aria-expanded="false">                        
+                  <th:block th:switch="${filters.sort}">                    
+                    <span id="dropdown-sort-text" th:case="'priceasc'">Низкая – Высокая цена</span>
+                    <span id="dropdown-sort-text" th:case="'pricedesc'">Высокая-Низкая Цена</span>
+                    <span id="dropdown-sort-text" th:case="'alphasc'">Порядок А-Я</span>
+                    <span id="dropdown-sort-text" th:case="'alphdesc'">Порядок Я-А</span>
+                    <span id="dropdown-sort-text" th:case="*">Новые</span>
+                  </th:block>      
+                  <i data-feather="chevron-down"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                  <button class="dropdown-item button-sort" type="button" value="newest">Новые</button>
+                  <button class="dropdown-item button-sort" type="button" value="priceasc">Низкая – Высокая цена</button>
+                  <button class="dropdown-item button-sort" type="button" value="pricedesc">Высокая-Низкая Цена</button>
+                  <button class="dropdown-item button-sort" type="button" value="alphasc">Порядок А-Я</button>
+                  <button class="dropdown-item button-sort" type="button" value="alphdesc">Порядок Я-А</button>
+                </div>
+              </div> 
+              <input id="input-sort" hidden="hidden" type="text" name="sort" th:value="${filters.sort}">                           
+            </div>
+          </div>
+          <!-- Shop toolbar -->
+          
+          <!-- Shop Grid -->          
+          <div class="grid grid-gap-3 grid-col-2 grid-col-lg-3 mb-3">
+              <div class="card card-product" th:each="article : ${articles}">
+                <div class="card-body">
+                  <a th:href="@{/article-detail?id=}+${article.id}"><img class="card-img-top" th:src="${article.picture} ? '/image/article/pictures/'+${article.picture}+'.jpg' : '/image/article/itemexample.jpg'" alt="Card image cap"></a>
+                  <a th:href="@{/article-detail?id=}+${article.id}" class="card-title" th:text="${article.title}"></a>
+                  <div class="price"><span class="h5" th:text="'KZT'+${#numbers.formatDecimal(article.price, 0, T(Math).round(article.price) == article.price ? 0 : 2)}"> </span></div>
+                </div>              
+              </div>
+          </div>      
+          <!-- /Shop Grid -->
+
+          <!-- Pagination -->
+          <div class="card" >
+            <div class="card-body d-flex justify-content-center">
+              <div id="light-pagination"></div>
+            </div>
+          </div>
+          <!-- /Pagination -->
+
+        </div>
+      </div>
+    </div> <!-- end container -->    
+
+    <!-- Filter Modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header border-bottom-0">
+            <h5 class="modal-title">Фильтры</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body p-0">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /Filter Modal -->
+        
+    <input id="page" hidden="hidden" type="text" name="page" th:value="${filters.page}">     
+    
+    <input id="totalitems" hidden="hidden" type="text" th:value="${totalitems}">
+    <input id="itemsperpage" hidden="hidden" type="text" th:value="${itemsperpage}">   
+
+    </form>
+  
+  <div th:replace="common/header :: footer"> </div>
+  <div th:replace="common/header :: body-scripts"> </div>
+  
+  <script>    
+    var sidebarContent = $('.accordion-sidebar').html()
+    $('#filterModal').on('show.bs.modal', function () {
+      // move filter contents to modal body
+      $(this).find('.modal-body').html('<div class="accordion accordion-caret accordion-sidebar accordion-modal">'+sidebarContent+'</div>')
+      // empty the sidebar filter contents
+      $('.accordion-sidebar:not(.accordion-modal)').html('')
+    }) 
+    $('#filterModal').on('hidden.bs.modal', function () {
+      $('.accordion-modal').remove() // remove modal filter contents
+      $('.accordion-sidebar').html(sidebarContent) // move filter contents back to the sidebar
+    })    
+    $('.button-sort').click(function () {
+      var value = $(this).val()
+      var text = $(this).text()      
+      $('#input-sort').val(value)
+      $('#dropdown-sort-text').text(text)      
+      $('#filter-form').submit()     
+    }) 
+    
+	$(function() {    
+		$('#light-pagination').pagination({
+          items: $('#totalitems').val(),
+          itemsOnPage: $('#itemsperpage').val(),
+          currentPage: $('#page').val(),
+          cssStyle: 'light-theme',
+          useAnchors: false,
+          prevText: "<",
+          nextText: ">",
+          displayedPages: 1,
+          edges: 1,
+          onPageClick: function(pageNumber) {
+        	$('#page').val(pageNumber)
+            $('#filter-form').submit()     
+          }
+    	});
+	});
+  </script>
+</body>
+</html>

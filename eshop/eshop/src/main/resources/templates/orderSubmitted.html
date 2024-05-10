@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org./1999/xhtml">
+<head th:replace="common/header :: common-header" />
+
+
+<body class="d-flex flex-column">
+  <div th:replace="common/header :: navbar"> </div>
+
+  <div class="container page-content">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-center py-3">
+          <i data-feather="check-circle" class="text-success" width="48" height="48"></i>
+          <h1>Спасибо.</h1>
+          <p>Ваш заказ размещен и будет обработан в ближайшее время.</p>
+          <p class="mb-0">
+            <span class="text-muted">ID заказа: </span>
+            <span class="text-info">#Заказ<span th:text="${order.id}"></span></span>
+          </p>
+          <p>
+            <span class="text-muted">Количество: </span>
+            <span class="text-info">KZT <span th:text="${order.orderTotal}"></span></span>
+          </p>
+          <p>Предполагаемая дата доставки <span th:text="${#dates.format(order.shippingDate, 'dd-MMM-yyyy')}"></span></p>
+          <a th:href="@{/store}" class="btn btn-info rounded mb-3">ПРОДОЛЖИТЬ ПОКУПКИ</a>
+          <a th:href="@{/order-detail?order=}+${order.id}" class="btn btn-primary rounded mb-3">ПОСМОТРЕТЬ ЗАКАЗ</a>
+        </div>
+      </div>
+    </div>  
+  </div> <!-- end container -->
+  
+  <div th:replace="common/header :: footer"> </div>
+  <div th:replace="common/header :: body-scripts"> </div>
+</body>
+</html>

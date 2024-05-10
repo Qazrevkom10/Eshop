@@ -1,0 +1,28 @@
+ version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"  # Экспонируется порт приложения
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/eshop  # Подключение к базе данных в контейнере db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""  # Пустая строка означает отсутствие пароля
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update  # Автоматическое обновление структуры базы данных
+    depends_on:  # Убедитесь, что db запущен перед запуском app
+      - db
+
+  db:
+    image: mysql:8.0  # Используем образ MySQL 8.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"  # Разрешить отсутствие пароля
+      MYSQL_DATABASE: eshop  # Имя создаваемой базы данных
+    volumes:
+      - db-data:/var/lib/mysql  # Сохраняем данные базы данных в томе
+    ports:
+      - "3307:3306"  # Экспонируется внешний порт 3307 на внутренний 3306
+
+volumes:
+  db-data:  # Том для хранения данных MySQL
